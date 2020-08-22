@@ -3,11 +3,19 @@ import logging
 from country_list import countries_for_language
 from django.core import serializers
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets, permissions
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+
 from .models import Relationship
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 
-
 # Create your views here.
+from .serializers import RelationshipSerializer
+
+
 def getRelationships(request, departure_country):
     """
     sends back the relationships that are registered in the the db and there status
@@ -45,3 +53,18 @@ def getRelations(request, departure_country):
         resp[int(item.status)][item.arrival_country] = item.arrival_country
 
     return JsonResponse(resp)
+
+
+class RestView(viewsets.ModelViewSet):
+    queryset = Relationship.objects.all()
+    serializer_class = RelationshipSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+@csrf_exempt
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def test(request):
+    res = "IT WORKS 🎉" if request.user.is_authenticated else "New phone who dis?"
+    return HttpResponse(res)

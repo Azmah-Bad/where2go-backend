@@ -15,14 +15,25 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import include, path
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import routers
 
 from rest_framework.authtoken import views
+
+from countries.views import test, RestView
+
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('countries.urls')),
     path('api-auth/', include('rest_framework.urls')),
-    url(r'^token/', views.obtain_auth_token)
+    url(r'^token/', views.obtain_auth_token),
+    path('test/',test)
 
 ]
+
+
