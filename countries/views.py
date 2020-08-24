@@ -60,6 +60,12 @@ class RestView(viewsets.ModelViewSet):
     serializer_class = RelationshipSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        departure_country = self.request.query_params.get('departure_country', None)
+        if departure_country is not None:
+            self.queryset = self.queryset.filter(departure_country=departure_country)
+        return self.queryset
+
 
 @csrf_exempt
 @api_view(['POST'])
