@@ -10,6 +10,6 @@ router = routers.DefaultRouter()
 router.register(r'relationships', RestView)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', include(router.get_urls())),
     path("country/<departure_country>/", views.getRelationships)
 ]

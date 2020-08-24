@@ -4,10 +4,13 @@ from country_list import countries_for_language
 from django.core import serializers
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes, action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
+from rest_framework import mixins
+from rest_framework.response import Response
 
 from .models import Relationship
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
@@ -55,7 +58,7 @@ def getRelations(request, departure_country):
     return JsonResponse(resp)
 
 
-class RestView(viewsets.ModelViewSet):
+class RestView(viewsets.ModelViewSet, mixins.DestroyModelMixin):
     queryset = Relationship.objects.all()
     serializer_class = RelationshipSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -65,6 +68,16 @@ class RestView(viewsets.ModelViewSet):
         if departure_country is not None:
             self.queryset = self.queryset.filter(departure_country=departure_country)
         return self.queryset
+
+    def destroy(self, request, *args, **kwargs):
+        departure_country = request.query_params.get('departure_country', None)
+        arrival_country = request.query_params.get('arrival_country', None)
+        instance = Relationship.objects.get(departure_country=departure_country, arrival_country=arrival_country)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 @csrf_exempt
