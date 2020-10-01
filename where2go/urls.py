@@ -23,15 +23,14 @@ from rest_framework import routers
 from rest_framework.authtoken import views
 
 from countries.views import test, RestView
-
-
-
+from where2go.views import Logout
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('countries.urls')),
     path('api-auth/', include('rest_framework.urls')),
     url(r'^token/', views.obtain_auth_token),
+    url('logout/', Logout.as_view()),
     path('test/',test)
 
 ]
