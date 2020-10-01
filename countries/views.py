@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework import mixins
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Relationship
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
@@ -87,3 +88,10 @@ class RestView(viewsets.ModelViewSet, mixins.DestroyModelMixin):
 def test(request):
     res = "IT WORKS 🎉" if request.user.is_authenticated else "New phone who dis?"
     return HttpResponse(res)
+
+
+class Logout(APIView):
+    def get(self, request, format=None):
+        # simply delete the token to force a login
+        request.user.auth_token.delete()
+        return Response(status=status.HTTP_200_OK)
